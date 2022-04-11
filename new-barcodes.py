@@ -71,9 +71,11 @@ def hamming_distance(test1,test2):
 
 	return distance
 
-def get_medians(uniques):
+def get_medians(uniques,distwarn=2):
 
 	medians = []
+	mins = {}
+	bad_pairs = []
 
 	for i in range(len(uniques)-1):
 		distances = []
@@ -81,10 +83,13 @@ def get_medians(uniques):
 
 			distance = hamming_distance(uniques[i],uniques[j])
 			distances += [distance]
+			if distance < distwarn:
+				bad_pairs += [(uniques[i],uniques[j])]
 
 		medians += [(uniques[i],median(distances))]
+		mins[uniques[i]] = min(distances)
 
-	return medians
+	return [medians,mins,bad_pairs]
 
 def print_probs_dict(probs_dict):
 	
@@ -103,7 +108,7 @@ def print_probs_dict(probs_dict):
 
 	return prob_list
 
-def eval_list(csv,klength=8):
+def eval_list(csv,klength=8,distwarn=2):
 	
 	with open(csv,'r') as infile:
 		lines = infile.readlines()
@@ -123,24 +128,32 @@ def eval_list(csv,klength=8):
 
 	prob_list = print_probs_dict(probs_dict)
 
-	medians = get_medians(uniques)
+	medians,mins,bad_pairs = get_medians(uniques,distwarn=distwarn)
 
 	sum_of_medians = 0
 	count = 0
 
 	medians.sort(key = lambda x: x[1])
 
+	minimum_dist = klength
+
 	with open("barcode_distances.csv",'w') as outfile:
-		outfile.write("barcode,median_hamming_dist\n")
+		outfile.write("barcode,median_hamming_dist,min_hamming_dist\n")
 		
 		for item in medians:
 			sum_of_medians += item[1]
 			count += 1
-			outfile.write("{},{}\n".format(item[0],item[1]))
+			outfile.write("{},{},{}\n".format(item[0],item[1],mins[item[0]]))
+			minimum_dist = min(minimum_dist,mins[item[0]])
 
 	median_mean = sum_of_medians/count
 
 	print("The average median hamming distance of barcodes in the set is {}".format(median_mean))
+	print("The smallest hamming distance of barcodes in the set is {}".format(minimum_dist))
+
+	with open("bad_pairs.csv",'w') as outfile:
+		for pair in bad_pairs:
+			outfile.write("{},{}\n".format(pair[0],pair[1]))
 
 	return [median_mean,uniques,prob_list]
 
@@ -213,7 +226,7 @@ if __name__ == '__main__': # allows another python script to import the function
 
 	args = parser.parse_args()
 
-	median_mean,uniques,prob_list = eval_list(args.csv,klength=args.klength)
+	median_mean,uniques,prob_list = eval_list(args.csv,klength=args.klength,distwarn=args.min_hamming)
 
 	new_codes = []
 
@@ -225,6 +238,3 @@ if __name__ == '__main__': # allows another python script to import the function
 	with open("{}.csv".format(args.outname),'w') as outfile:
 		for barcode in new_codes:
 			outfile.write("{}\n".format(barcode))
-
-
-	
