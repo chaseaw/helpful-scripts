@@ -11,7 +11,7 @@ List of scripts
   * Useful for: figuring whether barcodes were misassigned
 
 * [new-barcodes.py](new-barcodes.py)
-  * Dependencies: Base Python (2 or 3 should work, definitely runs on 3.9.5)
+  * Dependencies: Base Python 3.6+ (for statistics and random imports)
   * Input: A single column .csv file containing a list of same-length barcodes (e.g. 8 for MiSeq)
   * Output: barcode_nt_distributions.csv, barcode_distances.csv (hamming), and new_barcodes.csv
   * Useful for: creating new unique barcodes to assign to new users
