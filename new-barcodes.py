@@ -213,7 +213,7 @@ if __name__ == '__main__': # allows another python script to import the function
 	parser = argparse.ArgumentParser(description="Generates desired number of new barcodes from existing list.", usage='%(prog)s --csv --new [options]',add_help=False) # a description of the function
 
 	required = parser.add_argument_group('Required Input', 'These specifications are necessary to run.')
-	required.add_argument("--csv",type=str,help="Input csv with two barcode lists.", required=True)
+	required.add_argument("--csv",type=str,help="Input csv with barcode list.", required=True)
 	required.add_argument("--new",type=int,help="Number of new barcodes to make.", required=True)
 
 	data_opt = parser.add_argument_group('Basic Arguments', 'These options can be used to change how the program runs.')
